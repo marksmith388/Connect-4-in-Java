@@ -56,16 +56,12 @@ public class server {
 
         for(int x = 0; x < sConnections.size(); x++){
             if(sConnections.get(x).getIP().equals(opponent)){
-                outputToClient(s, "You have a saved game with " + opponent + "would you like to continue? Y/N");
+                outputToClient(s,"You have a saved game with " + opponent + "would you like to continue? Y/N");
                 String answer = inputFromClient(s);
-                if(answer.equals("Failed Response")){
-                    x--;
-                }else {
-                    if (answer.equalsIgnoreCase("Y")) {
-                        boolean cOpponent = connectOpponent(sConnections, x);
-                        if(cOpponent) {
-                            notConnected = updateConnection(s, x, sConnections);
-                        }
+                if(answer.equalsIgnoreCase("Y")){
+                    boolean oResponse = connectOpponent(s);
+                    if(oResponse) {
+                        notConnected = updateConnection(s, x, sConnections);
                     }
                 }
             }
@@ -86,7 +82,6 @@ public class server {
             t.start();
         }
 
-
     }
     private static int setPlayer(){
         int counter;
@@ -97,28 +92,6 @@ public class server {
             counter = 2;
         }
         return counter;
-    }
-
-    private static void outputToClient(Socket s, String data){
-        try {
-            OutputStream output = s.getOutputStream();
-            PrintWriter writer = new PrintWriter(output, true);
-            writer.println(data);
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    private static String inputFromClient(Socket s){
-        String response = "Failed Connection";
-        try {
-            InputStream input = s.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-            response = reader.readLine();
-        }catch(Exception e){
-           e.printStackTrace();
-        }
-        return response;
     }
 
     private static String writeConnection(Socket s) {
@@ -207,11 +180,37 @@ public class server {
         return false;
     }
 
-    private static boolean connectOpponent(List<connectionContainer> sConnections, int x){
-        Socket s = sConnections.get(x).getSocket();
-        outputToClient(s, "You have a saved game would you like to continue? Y/N");
-        String answer = inputFromClient(s);
-        return answer.equals("Y");
+    private static void outputToClient(Socket s, String data){
+        try {
+            OutputStream output = s.getOutputStream();
+            PrintWriter writer = new PrintWriter(output, true);
+            writer.println(data);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
+
+    private static String inputFromClient(Socket s){
+        String response = "Connection Failed";
+        try {
+            InputStream input = s.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+            response = reader.readLine();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return response;
+    }
+
+    private static boolean connectOpponent(Socket s){
+        outputToClient(s, "You have an incoming game request. Would you like to accept it? Y/N");
+        String response = " ";
+        while(response.equals(" ")){
+            response = inputFromClient(s);
+        }
+
+            return response.equalsIgnoreCase("Y");
+    }
+
 
 }
