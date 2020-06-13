@@ -59,10 +59,12 @@ public class server {
                 outputToClient(s,"You have a saved game with " + opponent + "would you like to continue? Y/N");
                 String answer = inputFromClient(s);
                 if(answer.equalsIgnoreCase("Y")){
-                    boolean oResponse = connectOpponent(s);
+                    boolean oResponse = connectOpponent(sConnections, x);
                     if(oResponse) {
                         notConnected = updateConnection(s, x, sConnections);
                     }
+                }else if(answer.equals("Connection Failed")){
+                    x--;
                 }
             }
         }
@@ -202,7 +204,8 @@ public class server {
         return response;
     }
 
-    private static boolean connectOpponent(Socket s){
+    private static boolean connectOpponent(List<connectionContainer> sConnections, int x){
+        Socket s = sConnections.get(x).getSocket();
         outputToClient(s, "You have an incoming game request. Would you like to accept it? Y/N");
         String response = " ";
         while(response.equals(" ")){
@@ -211,6 +214,8 @@ public class server {
 
             return response.equalsIgnoreCase("Y");
     }
+
+
 
 
 }
