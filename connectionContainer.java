@@ -36,16 +36,6 @@ public class connectionContainer implements Runnable {
         String board = reader.readLine();
         return board;
     }
-    private void output() throws IOException{
-        int[][] board = new int[7][6];
-        OutputStream output = getSocket().getOutputStream();
-        PrintWriter writer = new PrintWriter(output, true);
-        for (int y = 0; y < 6; y++) {
-            for (int x = 0; x < 7; x++) {
-                writer.println(board[x][y]);
-            }
-        }
-    }
     public void output(String board) throws  IOException{
         OutputStream output = getSocket().getOutputStream();
         PrintWriter writer = new PrintWriter(output, true);
