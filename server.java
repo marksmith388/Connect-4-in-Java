@@ -43,9 +43,8 @@ public class server {
 
     public void dataTransfer(int[][] board, int elementNumber){
         try {
-            System.out.println("Data Transfer");
             connectionContainer cContainer = connections.get(elementNumber);
-            cContainer.output(board);
+            cContainer.output(cContainer.boardToString(board));
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -53,23 +52,30 @@ public class server {
 
     private static void saveConnection(Socket s, List<connectionContainer> sConnections, String opponent) {
         boolean notConnected = true;
+        String answer = " ";
 
-        for(int x = 0; x < sConnections.size(); x++){
+        /*for(int x = 0; x < sConnections.size(); x++){
             if(sConnections.get(x).getIP().equals(opponent)){
-                outputToClient(s,"You have a saved game with " + opponent + "would you like to continue? Y/N");
-                String answer = inputFromClient(s);
+                outputToClient(s,"Y");
+                answer = inputFromClient(s);
+
                 if(answer.equalsIgnoreCase("Y")){
-                    boolean oResponse = connectOpponent(sConnections, x);
-                    if(oResponse) {
+                    boolean cOpponent = opponentResponse(s, "You have a new game request, would you like to accept?");
+                    if(cOpponent) {
                         notConnected = updateConnection(s, x, sConnections);
                     }
                 }else if(answer.equals("Connection Failed")){
                     x--;
                 }
             }
-        }
+        }*/
 
         for (int x = 0; x < sConnections.size(); x++) {
+            //If output is unspecified does the server socket release any given output to all clients?
+            //S first causes it to half break
+            //I think it's something to do with which socket is make=ing the request to talk to the other
+            outputToClient(sConnections.get(x).getSocket(), "Nooo");
+            outputToClient(s, "N");
             if (!sConnections.get(x).getConnected() && notConnected) {
                 notConnected = updateConnection(s, x, sConnections);
             }else if(!notConnected){
@@ -108,7 +114,7 @@ public class server {
             sc.close();
             reader.close();
 
-            for(int x = 0; x < connections.size(); x++){
+            /*for(int x = 0; x < connections.size(); x++){
                 if(connections.get(x).contains(" ")){
                     String[] splitConnections = connections.get(x).split(" ");
                     if(clientIP.equals(splitConnections[0])){
@@ -118,7 +124,7 @@ public class server {
                         return splitConnections[0];
                     }
                 }
-            }
+            }*/
             boolean written = false;
             for (int x = 0; x < connections.size(); x++) {
                 System.out.println(connections.get(x));
@@ -171,8 +177,8 @@ public class server {
         }
 
         try {
-            sc.outputPlayer();
-            sConnections.get(x).outputPlayer();
+            sc.output(Integer.toString(sc.getPlayer()));
+            sConnections.get(x).output(Integer.toString(sConnections.get(x).getPlayer()));
         }catch(Exception e){
             System.out.println();
         }
@@ -204,18 +210,11 @@ public class server {
         return response;
     }
 
-    private static boolean connectOpponent(List<connectionContainer> sConnections, int x){
-        Socket s = sConnections.get(x).getSocket();
-        outputToClient(s, "You have an incoming game request. Would you like to accept it? Y/N");
-        String response = " ";
-        while(response.equals(" ")){
-            response = inputFromClient(s);
-        }
+    private static boolean opponentResponse(Socket s, String data){
+        String answer = " ";
+        outputToClient(s, data);
+        answer = inputFromClient(s);
+        return answer.equalsIgnoreCase("Y");
 
-            return response.equalsIgnoreCase("Y");
     }
-
-
-
-
 }
