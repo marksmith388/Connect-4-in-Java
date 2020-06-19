@@ -22,23 +22,18 @@ public class connectionContainer implements Runnable {
             try {
                 System.out.println("Waiting for input");
                 server s = new server();
-                s.dataTransfer(input(), getElementNumber());
+                s.dataTransfer(boardToArray(input()), getElementNumber());
             } catch (Exception e) {
-                System.out.println("Connection was killed");
+                System.out.println(this.getIP() + " Connection was killed");
+                e.printStackTrace();
                 alive = false;
             }
         }
     }
-    private int[][] input() throws IOException {
+    private String input() throws IOException {
         InputStream input = getSocket().getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-        int[][] board = new int[7][6];
-        for (int y = 0; y < 6; y++) {
-            for (int x = 0; x < 7; x++) {
-                board[x][y] = Integer.parseInt(reader.readLine());
-            }
-        }
-        printBoard(board);
+        String board = reader.readLine();
         return board;
     }
     private void output() throws IOException{
@@ -51,21 +46,12 @@ public class connectionContainer implements Runnable {
             }
         }
     }
-    public void output(int[][] board) throws  IOException{
+    public void output(String board) throws  IOException{
         OutputStream output = getSocket().getOutputStream();
         PrintWriter writer = new PrintWriter(output, true);
-        for (int y = 0; y < 6; y++) {
-            for (int x = 0; x < 7; x++) {
-                writer.println(board[x][y]);
-            }
-        }
+        writer.println(board);
     }
-    public void outputPlayer() throws IOException{
-        OutputStream output = getSocket().getOutputStream();
-        PrintWriter writer = new PrintWriter(output, true);
-        writer.println(getPlayer());
-    }
-    private void printBoard(int[][] board){
+    public void printBoard(int[][] board){
         for(int y = 5; y >= 0; y--){
             System.out.println();
             for(int x = 0; x < 7; x++){
@@ -104,5 +90,28 @@ public class connectionContainer implements Runnable {
         Socket s = getSocket();
         String IP = s.getInetAddress() + ":" + s.getPort();
         return IP;
+    }
+    private int[][] boardToArray(String board){
+        int[][] gameBoard = new int[7][6];
+        int counter = 0;
+        for(int y = 0; y < 6; y++){
+            for(int x = 0; x < 7; x++) {
+                gameBoard[x][y] = Integer.parseInt(String.valueOf(board.charAt(counter)));
+                counter++;
+            }
+        }
+        printBoard(gameBoard);
+        return gameBoard;
+    }
+    public String boardToString(int[][] board){
+        StringBuilder gameBoard = new StringBuilder();
+
+        for(int y = 0; y < 6; y++){
+            for(int x = 0; x < 7; x++) {
+                gameBoard.append(board[x][y]);
+            }
+        }
+
+        return gameBoard.toString();
     }
 }
