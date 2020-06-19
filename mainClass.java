@@ -12,17 +12,27 @@ public class mainClass {
     public mainClass() {
         try{
             Socket socket = new Socket("127.0.0.1", 9500);
-            System.out.println(socket.getInetAddress());
-            int counter = 0;
-            while(counter == 0) {
-               counter = inputPlayer(socket);
+            System.out.println(socket.getInetAddress() + ":" + socket.getLocalPort());
+
+            String response = " ";
+            response = input(socket);
+            System.out.println("received existing game " + response);
+            if(response.equals("Y")){
+                System.out.println("Do you want to continue your saved game? Y/N");
+                Scanner scanner = new Scanner(System.in);
+                response = scanner.nextLine();
+                output(socket, response);
+            }else{
+                //output(socket, "N");
             }
+            int counter;
+            System.out.println("Mark was right");
+            counter = Integer.parseInt(input(socket));
+            System.out.println(counter + "Counter value");
+
             if(counter == 2){
-                int[][] board = new int[7][6];
-                board[0][0] = 10;
-                while(board[0][0] == 10){
-                    board = input(socket);
-                }
+                int[][] board;
+                board = boardToArray(input(socket));
                 setGameBoard(board);
                 printBoard(board);
             }
@@ -46,12 +56,13 @@ public class mainClass {
                         }
                     }
                 }
-                output(socket, getGameBoard());
-                setGameBoard(input(socket));
+                output(socket, boardToString(getGameBoard()));
+                setGameBoard(boardToArray(input(socket)));
                 printBoard(getGameBoard());
             }
         }catch(Exception e){
             System.out.println("Unable to make connection");
+            e.printStackTrace();
         }
     }
     private int[][] getGameBoard() {
@@ -174,32 +185,36 @@ public class mainClass {
         }
         return true;
     }
-    private int[][] input(Socket ss) throws IOException {
-        int[][] gameboard = new int[7][6];
+    private String input(Socket ss) throws IOException {
         InputStream input = ss.getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+        String data = reader.readLine();
+        return data;
+    }
+    private int[][] boardToArray(String board){
+        int[][] gameBoard = new int[7][6];
+        int counter = 0;
+        for(int y = 0; y < 6; y++){
+            for(int x = 0; x < 7; x++) {
+                gameBoard[x][y] = Integer.parseInt(String.valueOf(board.charAt(counter)));
+                counter++;
+            }
+        }
+        return gameBoard;
+    }
+    private String boardToString(int[][] board){
+        StringBuilder gameBoard = new StringBuilder();
 
         for(int y = 0; y < 6; y++){
-            for(int x = 0; x < 7; x++){
-                String counterSpace = reader.readLine();
-                gameboard[x][y] = Integer.parseInt(counterSpace);
+            for(int x = 0; x < 7; x++) {
+                gameBoard.append(board[x][y]);
             }
         }
-        return gameboard;
+        return gameBoard.toString();
     }
-    private int inputPlayer(Socket ss) throws IOException{
-        InputStream input = ss.getInputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-        int counter = Integer.parseInt(reader.readLine());
-        return counter;
-    }
-    private void output(Socket s, int[][] board) throws IOException{
+    private void output(Socket s, String board) throws IOException{
         OutputStream output = s.getOutputStream();
         PrintWriter writer = new PrintWriter(output, true);
-        for(int y = 0; y < 6; y++) {
-            for (int x = 0; x < 7; x++) {
-                writer.println(board[x][y]);
-            }
-        }
+        writer.println(board);
     }
 }
