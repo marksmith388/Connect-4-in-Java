@@ -1,4 +1,5 @@
 import java.io.*;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -6,27 +7,24 @@ public class mainClass {
 
     private int[][] gameBoard = new int[7][6];
     public static void main (String[] args){
-        mainClass main = new mainClass();
+        mainClass main = new mainClass(50907);
 
     }
-    public mainClass() {
+    public mainClass(int port) {
         try{
-            Socket socket = new Socket("127.0.0.1", 9500);
+            Socket socket = new Socket("127.0.0.1", 9500, InetAddress.getByName("127.0.0.1"), port);
             System.out.println(socket.getInetAddress() + ":" + socket.getLocalPort());
 
             String response = " ";
             response = input(socket);
-            System.out.println("received existing game " + response);
-            if(response.equals("Y")){
+            System.out.println("received existing game");
+            if(response.equals("Y")) {
                 System.out.println("Do you want to continue your saved game? Y/N");
                 Scanner scanner = new Scanner(System.in);
                 response = scanner.nextLine();
                 output(socket, response);
-            }else{
-                //output(socket, "N");
             }
             int counter;
-            System.out.println("Mark was right");
             counter = Integer.parseInt(input(socket));
             System.out.println(counter + "Counter value");
 
