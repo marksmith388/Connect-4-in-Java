@@ -18,10 +18,10 @@ public class connectionContainer implements Runnable {
 
     public void run(){
         boolean alive = true;
+        server s = new server();
         while(alive) {
             try {
                 System.out.println("Waiting for input");
-                server s = new server();
                 s.dataTransfer(boardToArray(input()), getElementNumber());
             } catch (Exception e) {
                 System.out.println(this.getIP() + " Connection was killed");
@@ -104,4 +104,5 @@ public class connectionContainer implements Runnable {
 
         return gameBoard.toString();
     }
+
 }
