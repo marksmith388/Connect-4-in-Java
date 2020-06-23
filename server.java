@@ -7,7 +7,9 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class server {
+
     private static List<connectionContainer> connections = new ArrayList<>();
+
     public static void main(String[] args) {
         while (true) {
             try {
@@ -53,29 +55,23 @@ public class server {
     private static void saveConnection(Socket s, List<connectionContainer> sConnections, String opponent) {
         boolean notConnected = true;
         String answer = " ";
-
-        /*for(int x = 0; x < sConnections.size(); x++){
+        for(int x = 0; x < sConnections.size(); x++){
             if(sConnections.get(x).getIP().equals(opponent)){
                 outputToClient(s,"Y");
                 answer = inputFromClient(s);
-
                 if(answer.equalsIgnoreCase("Y")){
-                    boolean cOpponent = opponentResponse(s, "You have a new game request, would you like to accept?");
+                    boolean cOpponent = opponentResponse(sConnections.get(x).getSocket(), "Y");
+                    System.out.print("Hello");
                     if(cOpponent) {
+                        outputToClient(s, "Nooo");
                         notConnected = updateConnection(s, x, sConnections);
                     }
                 }else if(answer.equals("Connection Failed")){
                     x--;
                 }
             }
-        }*/
-
+        }
         for (int x = 0; x < sConnections.size(); x++) {
-            //If output is unspecified does the server socket release any given output to all clients?
-            //S first causes it to half break
-            //I think it's something to do with which socket is make=ing the request to talk to the other
-            outputToClient(sConnections.get(x).getSocket(), "Nooo");
-            outputToClient(s, "N");
             if (!sConnections.get(x).getConnected() && notConnected) {
                 notConnected = updateConnection(s, x, sConnections);
             }else if(!notConnected){
@@ -85,9 +81,6 @@ public class server {
         if(notConnected) {
             connectionContainer sc = new connectionContainer(s);
             sConnections.add(sc);
-            System.out.println(sc.getConnected());
-            Thread t = new Thread(sc);
-            t.start();
         }
 
     }
@@ -114,7 +107,7 @@ public class server {
             sc.close();
             reader.close();
 
-            /*for(int x = 0; x < connections.size(); x++){
+            for(int x = 0; x < connections.size(); x++){
                 if(connections.get(x).contains(" ")){
                     String[] splitConnections = connections.get(x).split(" ");
                     if(clientIP.equals(splitConnections[0])){
@@ -124,7 +117,7 @@ public class server {
                         return splitConnections[0];
                     }
                 }
-            }*/
+            }
             boolean written = false;
             for (int x = 0; x < connections.size(); x++) {
                 System.out.println(connections.get(x));
@@ -153,22 +146,16 @@ public class server {
     }
 
     private static boolean updateConnection(Socket s, int x, List<connectionContainer> sConnections){
+        Thread t1 = new Thread(sConnections.get(x));
+        t1.start();
         int counter = setPlayer();
         connectionContainer sc = new connectionContainer(s, true, x);
         sc.setPlayer(counter);
         sConnections.add(sc);
 
         int index = sConnections.indexOf(sc);
-        System.out.println("Test old connection list number " + x);
-        System.out.println("Test new connection list number " + index);
-
         sConnections.get(x).setConnected(true);
-        System.out.println("Test old connected " + sConnections.get(x).getConnected());
-        System.out.println("Test new connected " + sConnections.get(index).getConnected());
-
         sConnections.get(x).setElementNumber(index);
-        System.out.println("Test old element number " + sConnections.get(x).getElementNumber());
-        System.out.println("Test new element number " + sConnections.get(index).getElementNumber());
 
         if(counter == 1){
             sConnections.get(x).setPlayer(2);
@@ -180,10 +167,10 @@ public class server {
             sc.output(Integer.toString(sc.getPlayer()));
             sConnections.get(x).output(Integer.toString(sConnections.get(x).getPlayer()));
         }catch(Exception e){
-            System.out.println();
+            e.printStackTrace();
         }
-        Thread t = new Thread(sc);
-        t.start();
+        Thread t2 = new Thread(sc);
+        t2.start();
 
         return false;
     }
